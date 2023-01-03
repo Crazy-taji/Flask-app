@@ -1,6 +1,7 @@
 from flask import Flask, render_template, Response, Request
 import os
 import func
+import cv2
 
 app = Flask(__name__)
 
@@ -8,7 +9,12 @@ number = 13
 
 @app.route('/')
 def index():
-    return render_template("index.html")
+    ret, __ = cv2.VideoCapture(1).read()
+    
+        if not ret:
+            return render_template("index.html", val = "ret not worked")
+        else:
+            return render_template("index.html", val = "ret worked")
 
 
 if __name__ == '__main__':
