@@ -1,0 +1,32 @@
+.nav{
+    background-color: rgb(29, 29, 29);
+    width: 100%;
+    color: azure;
+    display: flex;
+    position:absolute;
+    top: 0%;
+    left: 0%;
+
+}
+#title, #logo{
+    position: relative;
+    margin-top: 1vw;
+    margin-left: 1vw
+}
+#image{
+    width: 55vw;
+    margin-top: 3vw;
+    position: relative;
+    float: left;
+}
+#text{
+    font-size: 3vw;
+}
+#setting{
+    float: left;
+    text-align: left;
+    margin-left: 3vw;
+}
+body{
+    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
