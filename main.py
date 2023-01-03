@@ -10,7 +10,7 @@ number = 13
 @app.route('/')
 def index():
     ret, __ = cv2.VideoCapture(1).read()
-    if not ret:$
+    if not ret:
         return render_template("index.html", val = "ret not worked")
     else:
         return render_template("index.html", val = "ret worked")
