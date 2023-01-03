@@ -4,7 +4,7 @@ gunicorn==20.0.4
 itsdangerous==1.1.0
 Jinja2==2.11.3
 MarkupSafe==1.1.1
-numpy==1.17.1
+numpy==4.7.0.68
 opencv-python==3.1.0
 Werkzeug==1.0.1
 zipp==3.11.0
