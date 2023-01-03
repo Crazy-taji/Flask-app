@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Response, Request
 import os
+
 import cv2
 
 app = Flask(__name__)
