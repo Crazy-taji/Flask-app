@@ -7,7 +7,7 @@ hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
 face = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 
-def proceesor(frame):
+def processor(frame):
 
     #gray = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
 
