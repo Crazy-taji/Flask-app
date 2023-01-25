@@ -1,6 +1,6 @@
 
     var socket = io();
-
+    console.log("working")
 
     socket.on("connect", ()=>{
         console.log("connected");
