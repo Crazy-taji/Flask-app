@@ -1,28 +1,39 @@
-var txt = document.getElementById("count");
-var show = document.getElementById("showing");
-var camTxt = document.getElementById("cam");
 
-setInterval(() => {
-
-    check(txt,"C-check", "/send_text", "Not Counting Right Now" )
-
-//    if(fetch("/video").response == null){
-//    document.getElementById("image").src = "https://tanahair.indonesia.go.id/pupm/static/no_video.jpg";
-//    }
+    var socket = io();
 
 
-    }, 200);
+    socket.on("connect", ()=>{
+        console.log("connected");
+    })
+    socket.on("response", (url) =>{
+    console.log(url);
+    })
 
-function check (OutputID,InputID, link, elseVal ){
-
-    if(document.getElementById(InputID).checked == true){
-        fetch(link)
-        .then(response => {
-            response.text().then(t => OutputID.innerHTML = t)
-        });
+    //{{ url_for('video') }}
+    var txt = document.getElementById("count");
+    var camURL = document.getElementById("camURL");
+//    check(txt,"C-check", "/send_text", "Not Counting Right Now" )
+//    }, 100)
+    function access(){
+        camURL = document.getElementById("camURL").value;
+        socket.emit("url", camURL)
     }
-    else{
-        OutputID.innerHTML = elseVal;
+    function Turn(){
+        socket.emit("cam", 1)
+
     }
-}
+
+
+    function check (OutputID,InputID, link, elseVal ){
+
+        if(document.getElementById(InputID).checked == true){
+            fetch(link)
+            .then(response => {
+                response.text().then(t => OutputID.innerHTML = t)
+            });
+        }
+        else{
+            OutputID.innerHTML = elseVal;
+        }
+    }
 
