@@ -73,7 +73,7 @@ def generateFrames():
     # percentage = 0.3
     camera = cv2.VideoCapture(camera_text)
     camera.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-    frame_rate = 30
+    frame_rate = 5
     prev = 0
     print("image requested")
     # while frame[1] > maximum or frame[0] > maximum:
