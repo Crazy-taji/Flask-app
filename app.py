@@ -79,7 +79,7 @@ def generateFrames():
     # maximum = 600
     # percentage = 0.3
     camera = cv2.VideoCapture(camera_text)
-    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+    camera.set(cv2.CAP_PROP_BUFFERSIZE, 0)
     frame_rate = 5
     prev = 0
     print("image requested")
@@ -100,7 +100,7 @@ def generateFrames():
             if camTurn:
                 if not camera.isOpened():
                     camera = cv2.VideoCapture(camera_text)
-                    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                    camera.set(cv2.CAP_PROP_BUFFERSIZE, 0)
                 outcome,frame = camera.read()
                 if not outcome:
                     frame = cv2.imread("no_video.jpg")
