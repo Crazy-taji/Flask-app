@@ -143,9 +143,6 @@ def index():
 def video():
     return Response(generateFrames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route("/checking")
-def checking():
-    return Response(current, mimetype='text')
 
 # @app.route('/time_feed')
 # def time_feed():
