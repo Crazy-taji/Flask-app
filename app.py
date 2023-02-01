@@ -11,7 +11,7 @@ app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 camTurn = True
-
+process = 0
 def checkCam():
     camera = cv2.VideoCapture(camera_text)
     outcome,_ = camera.read()
@@ -20,6 +20,13 @@ def checkCam():
         return True
     else:
         return False
+
+
+@socketio.on("model")
+def model_handle(val):
+    global process
+    process = val
+    print("model set")
 
 
 @socketio.on("connect")
@@ -48,12 +55,12 @@ def url(url):
     print(url)
     cam = cv2.VideoCapture(url)
     ret,_ = cam.read()
+    cam.release()
     if ret:
         camera_text = url
         camera = cv2.VideoCapture(camera_text)
         emit("response", "successfully loaded " + url)
         current = True
-
     else:
         current = False
         emit("response", "failed to load " + url)
@@ -72,7 +79,7 @@ def generateFrames():
     # maximum = 600
     # percentage = 0.3
     camera = cv2.VideoCapture(camera_text)
-    camera.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
     frame_rate = 5
     prev = 0
     print("image requested")
@@ -85,21 +92,28 @@ def generateFrames():
         time_elapsed = time.time() - prev
         if time_elapsed > 1. / frame_rate:
             prev = time.time()
-            outcome,frame = camera.read()
             if not camTurn:
+                if camera.isOpened():
+                    camera.release()
                 frame = cv2.imread("random.jpg")
                 frame = cv2.resize(frame, (500, 320))
-            if not outcome:
-                frame = cv2.imread(camera_text)
-                camera.release()
-                # frame = np.zeros((500, 320, 3), dtype = np.uint8)
-                frame = cv2.resize(frame, (500, 320))
-            else:
-                frame = cv2.resize(frame, (500, 320))
-                frame,number = proceesor(frame)
+            if camTurn:
+                if not camera.isOpened():
+                    camera = cv2.VideoCapture(camera_text)
+                    camera.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+                outcome,frame = camera.read()
+                if not outcome:
+                    frame = cv2.imread("no_video.jpg")
+                    camera.release()
+                    # frame = np.zeros((500, 320, 3), dtype = np.uint8)
+                    frame = cv2.resize(frame, (500, 320))
+                else:
+                    frame = cv2.resize(frame, (500, 320))
+                    if process == 1:
+                        frame,number = proceesor(frame)
             ret, buffer = cv2.imencode(".jpg", frame)
             frame = buffer.tobytes()
-        yield(b'--frame\r\n'
+            yield(b'--frame\r\n'
                 b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
@@ -139,15 +153,6 @@ def checking():
 #         yield datetime.now().strftime("%Y.%m.%d|%H:%M:%S")  # return also will work
 #     return Response(generate(), mimetype='text')
 
-
-@app.route("/cam", methods = ["POST", "GET"])
-def cam():
-    result = request.form.to_dict()
-    camNum = result["name"]
-    print(camNum)
-    cam_change(camNum)
-    return render_template("index.html")
-
 # @app.route("/photo")
 # def photo():
 #     if checkCam() is True:
@@ -158,7 +163,10 @@ def cam():
 @app.route('/send_text')
 def send_text():
     def generate():
-        yield str(number)
+        if process == 0:
+            yield "Turn On Processor"
+        else:
+            yield str(number)
     return Response(generate(), mimetype='text')
 
 if __name__ == "__main__":

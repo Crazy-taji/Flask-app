@@ -12,15 +12,25 @@
     //{{ url_for('video') }}
     var txt = document.getElementById("count");
     var camURL = document.getElementById("camURL");
-//    check(txt,"C-check", "/send_text", "Not Counting Right Now" )
-//    }, 100)
+    setInterval(function() {
+    check(txt,"C-check", "/send_text", "Not Counting Right Now" )
+    console.log(1)
+    }, 100);
+
+
+
+
     function access(){
         camURL = document.getElementById("camURL").value;
         socket.emit("url", camURL)
     }
+
     function Turn(){
         socket.emit("cam", 1)
 
+    }
+    function Process(num){
+        socket.emit("model", num)
     }
 
 
