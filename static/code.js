@@ -31,12 +31,17 @@
         socket.emit("url", camURL)
     }
 
-    function Turn(){
-        socket.emit("cam", 1)
+    function Turn(value){
+        socket.emit("cam", 1);
+        let turnText = document.getElementById("camTurn")
+        if(value == 1){turnText.value = 0; turnText.innerHTML = ("Turn On Camera"); inform("Camera Turn Off Request Was Sent")}
+        if(value == 0){turnText.value = 1; turnText.innerHTML = ("Turn Off Camera"); inform("Camera Turn On Request Was Sent")}
+
 
     }
     function Process(num){
         socket.emit("model", num)
+        console.log(num)
     }
 
 

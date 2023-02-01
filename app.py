@@ -3,8 +3,7 @@ import cv2
 import time
 import threading
 
-
-from main import proceesor
+from main import proceesor, motionDetect
 import numpy as np
 from flask_socketio import SocketIO, send, emit
 
@@ -13,7 +12,6 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 camTurn = True
 process = 0
-change = False
 
 def checkCam():
     camera = cv2.VideoCapture(camera_text)
@@ -24,33 +22,12 @@ def checkCam():
     else:
         return False
 
-class VideoCapture:
-    def __init__(self, name):
-        self.cap = cv2.VideoCapture(name)
-        self.lock = threading.Lock()
-        self.t = threading.Thread(target=self._reader)
-        self.t.daemon = True
-        self.t.start()
-
-    # grab frames as soon as they are available
-    def _reader(self):
-        while True:
-            with self.lock:
-                ret = self.cap.grab()
-            if not ret:
-                break
-
-    # retrieve latest frame
-    def read(self):
-        with self.lock:
-            _, frame = self.cap.retrieve()
-        return frame
-
 @socketio.on("model")
 def model_handle(val):
     global process
     process = val
     print("model set")
+    print(process)
 
 
 @socketio.on("connect")
@@ -61,7 +38,6 @@ def handle_my_data():
 def handle_my_data(cam):
     print("got")
     global camTurn
-    global change
     if camTurn:
         val = False
         print("0")
@@ -69,15 +45,14 @@ def handle_my_data(cam):
         val = True
         print("1")
     camTurn = val
-    change = True
 
 
 
 @socketio.on("url")
 def url(url):
+    global camera
     global camera_text
     global current
-    global change
     print(url)
     cam = cv2.VideoCapture(url)
     ret,_ = cam.read()
@@ -90,7 +65,6 @@ def url(url):
     else:
         current = False
         emit("response", "failed to load " + url)
-    change = True
 
 
 camera_text = "http://80.32.125.254:8080/cgi-bin/faststream.jpg?stream=half&fps=15&rand=COUNTER"
@@ -103,11 +77,11 @@ def generateFrames():
     global number
     global camera
     global current
-    global change
+    global process
     # maximum = 600
     # percentage = 0.3
     SetCam()
-    frame_rate = 5
+    frame_rate = 1
     prev = 0
     print("image requested")
     # while frame[1] > maximum or frame[0] > maximum:
@@ -115,34 +89,48 @@ def generateFrames():
     #     frame[0] = round(frame[0] * percentage)
     # width = frame[1] * percentage
     # height = frame[0] * percentage
+    start = time.time()
     while True:
-        time_elapsed = time.time() - prev
-        if time_elapsed > 1. / frame_rate:
-            prev = time.time()
-            if not camTurn:
-                if change:
-                    camera.release()
-                    change = False
-                frame = cv2.imread("random.jpg")
-                frame = cv2.resize(frame, (500, 320))
-            if camTurn:
-                if change:
-                    SetCam()
-                    change = False
-                frame = camera.read()
-                # frame = cv2.resize(frame, (500, 320))
-                if process == 1:
-                    frame,number = proceesor(frame)
+        if not camTurn:
+            if camera.isOpened():
+                camera.release()
+            frame = cv2.imread("random.jpg")
+            frame = cv2.resize(frame, (500, 320))
             ret, buffer = cv2.imencode(".jpg", frame)
             frame = buffer.tobytes()
-            yield(b'--frame\r\n'
-                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        if camTurn:
+            if not camera.isOpened():
+                SetCam()
+            current_time = time.time()
+            if current_time - start >= 1.0 / frame_rate:
+                outcome,frame = camera.read()
+                if not outcome:
+                    frame = cv2.imread("no_video.jpg")
+                    camera.release()
+                    # frame = np.zeros((500, 320, 3), dtype = np.uint8)
+                    frame = cv2.resize(frame, (500, 320))
+                else:
+                    frame = cv2.resize(frame, (500, 320))
+                    if int(process) == 1:
+                        frame,number = proceesor(frame)
+                    if int(process) == 2:
+                        frame, number = motionDetect(frame)
+                    start = current_time
+                ret, buffer = cv2.imencode(".jpg", frame)
+                frame = buffer.tobytes()
+                yield(b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 def SetCam():
     global camera_text
     global camera
-    camera = VideoCapture(camera_text)
+    camera = cv2.VideoCapture(camera_text)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
+    camera.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 
 def cam_change(num):
     global camera
@@ -153,7 +141,6 @@ def cam_change(num):
         num = int(num)
     camera_text = num
     camera.release()
-
 
 
 @app.route('/', methods=["GET"])
@@ -168,7 +155,8 @@ def index():
 
 @app.route('/video')
 def video():
-    return Response(generateFrames(),mimetype='multipart/x-mixed-replace; boundary=frame')
+    while True:
+        return Response(generateFrames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route("/checking")
 def checking():
@@ -190,10 +178,13 @@ def checking():
 @app.route('/send_text')
 def send_text():
     def generate():
+        global process
+        global number
         if process == 0:
             yield "Turn On Processor"
         else:
             yield str(number)
+            print(number)
     return Response(generate(), mimetype='text')
 
 if __name__ == "__main__":

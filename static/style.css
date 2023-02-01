@@ -8,6 +8,22 @@
     left: 0%;
 
 }
+.button{
+    color: rgb(0, 0, 0);
+    border-color: black;
+    background-color: #ffffff;
+    margin: 0.3vw;
+    border-width: 1px;
+}
+button:hover{
+    border-radius: 20%;
+    border-bottom-right-radius: 0%;
+    border-bottom-left-radius: 0%;
+    background-color: rgb(203, 232, 255);
+    border-bottom-color:rgb(59, 91, 136);
+    color: black;
+}
+
 #title, #logo{
     position: relative;
     margin-top: 1vw;
@@ -15,7 +31,7 @@
 }
 #image{
     width: 55vw;
-    margin-top: 3vw;
+    margin-top: 1vw;
     position: relative;
     float: left;
 }
@@ -23,9 +39,14 @@
     font-size: 3vw;
 }
 #setting{
+    margin-top: 2vw;
     float: left;
     text-align: left;
     margin-left: 3vw;
+    width: 40%;
+}
+#main{
+    margin-top: 15vh;
 }
 body{
     font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;

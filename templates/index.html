@@ -1,18 +1,17 @@
 {% extends "base.html" %}{% block content %}
-            <div>
+            <div id="main">
           <h1 style="text-align:center">Human Detection</h1>
           <div style="text-align: center;">
               <div>
-              <img src="{{ url_for('video') }}" width="60%" id="image" alt="image not found"/>
+              <img src="{{ url_for('video') }}" width="50%" id="image" alt="image not found"/>
             </div>
               <div id="setting">
                   <div>
-                <h2 id="turn" >text</h2>
-                    <button class="button" id="camTurn" onclick="Turn()">Turn On Camera</button>
+                    <button class="button" id="camTurn" onclick="Turn(value)" value = 1>Turn Off Camera</button>
                 </div>
                 <div>
                 <h2 id="count" >text</h2>
-                    IP Camera URL: <input name="name" type="text" id="camURL" style="font-size:20px ;" value="0" >
+                    IP Camera URL: <input name="name" type="text" id="camURL" style="font-size:20px ; width:100%;" value="http://IpAdress:port/path/to/camera.jpg" >
                     <button class="button" onclick="access()">Send</button>
                 </div>
                 <br>
@@ -21,17 +20,18 @@
                 </div>
                 <br>
                 <div>
-                  Processing Data :<select><option>No Processing</option><option>Human Detector</option><option>Motion Detector</option></option></select>
+                  Processing Data Method :<select id="models"><option value="0">No Processing</option><option value = 1>Human Detector</option><option value="2">Motion Detector</option></option></select>
+                    <button class="button" onclick="Process(document.getElementById('models').value)">Change Processor</button>
                 </div>
                 <br>
                 <div>
                   Notify When Discovered People in View:<input type="checkbox" id="notify" >
                 </div>
-                <div>
-                  <button onclick="camBtn">Turn On Camera</button>
-                </div>
-                  Status: <br>
+                  <br><br>
+                  Status:
                   <p id="stats">Connecting To Server...</p>
+                  <hr/>
+                  <p> Use this website : "http://www.insecam.org/en" to find the public IP camera for trying this app.  Insert the streaming image path to "IP Camera URL" and send the link to server </p>
               </div>
         </div>
         <script type ="text/javascript" src="{{url_for('static', filename='code.js')}}"></script>
