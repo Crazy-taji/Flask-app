@@ -1,12 +1,18 @@
 
     var socket = io();
+    var stats = document.getElementById("stats");
 
 
+    function inform(text){
+        console.log(text)
+        stats.innerHTML = text
+    }
     socket.on("connect", ()=>{
         console.log("connected");
+        stats.innerHTML = "Connected To Server"
     })
     socket.on("response", (url) =>{
-    console.log(url);
+        inform(url);
     })
 
     //{{ url_for('video') }}
