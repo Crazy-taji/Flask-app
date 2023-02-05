@@ -1,7 +1,6 @@
 from flask import Flask, render_template,request, Response, jsonify
 import cv2
 import time
-import threading
 
 from main import proceesor, motionDetect
 import numpy as np
