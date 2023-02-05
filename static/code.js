@@ -20,7 +20,7 @@
     var camURL = document.getElementById("camURL");
     setInterval(function() {
     check(txt,"C-check", "/send_text", "Not Counting Right Now" )
-    console.log(1)
+
     }, 100);
 
 

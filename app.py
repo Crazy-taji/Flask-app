@@ -8,7 +8,7 @@ from flask_socketio import SocketIO, send, emit
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
-camTurn = False
+camTurn = True
 process = 0
 
 def checkCam():
