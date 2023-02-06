@@ -5,6 +5,7 @@ import time
 from main import proceesor, motionDetect
 import numpy as np
 from flask_socketio import SocketIO, send, emit
+from imutils.video import VideoStream
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -12,9 +13,9 @@ camTurn = True
 process = 0
 
 def checkCam():
-    camera = cv2.VideoCapture(camera_text)
-    outcome,_ = camera.read()
-    camera.release()
+    cam = cv2.VideoCapture(camera_text)
+    outcome,_ = cam.read()
+    cam.release()
     if outcome:
         return True
     else:
@@ -48,7 +49,6 @@ def handle_my_data(cam):
 
 @socketio.on("url")
 def url(url):
-    global camera
     global camera_text
     global current
     print(url)
@@ -90,8 +90,6 @@ def generateFrames():
     start = time.time()
     while True:
         if not camTurn:
-            if camera.isOpened():
-                camera.release()
             frame = cv2.imread("random.jpg")
             frame = cv2.resize(frame, (500, 320))
             ret, buffer = cv2.imencode(".jpg", frame)
@@ -99,12 +97,10 @@ def generateFrames():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         if camTurn:
-            if not camera.isOpened():
-                SetCam()
             current_time = time.time()
             if current_time - start >= 1.0 / frame_rate:
-                outcome,frame = camera.read()
-                if not outcome:
+                frame = camera.read()
+                if frame is None:
                     frame = cv2.imread("no_video.jpg")
                     camera.release()
                     # frame = np.zeros((500, 320, 3), dtype = np.uint8)
@@ -125,10 +121,7 @@ def generateFrames():
 def SetCam():
     global camera_text
     global camera
-    camera = cv2.VideoCapture(camera_text)
-    camera.set(cv2.CAP_PROP_FRAME_WIDTH, 500)
-    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
-    camera.set(cv2.CAP_PROP_BUFFERSIZE, 0)
+    camera = video_stream = VideoStream(camera_text).start()
 
 def cam_change(num):
     global camera
