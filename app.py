@@ -87,7 +87,6 @@ def generateFrames():
     #     frame[0] = round(frame[0] * percentage)
     # width = frame[1] * percentage
     # height = frame[0] * percentage
-    start = time.time()
     while True:
         if not camTurn:
             frame = cv2.imread("random.jpg")
@@ -97,25 +96,23 @@ def generateFrames():
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
         if camTurn:
-            current_time = time.time()
-            if current_time - start >= 1.0 / frame_rate:
-                frame = camera.read()
-                if frame is None:
-                    frame = cv2.imread("no_video.jpg")
-                    camera.release()
-                    # frame = np.zeros((500, 320, 3), dtype = np.uint8)
-                    frame = cv2.resize(frame, (500, 320))
-                else:
-                    frame = cv2.resize(frame, (500, 320))
-                    if int(process) == 1:
-                        frame,number = proceesor(frame)
-                    if int(process) == 2:
-                        frame, number = motionDetect(frame)
-                    start = current_time
-                ret, buffer = cv2.imencode(".jpg", frame)
-                frame = buffer.tobytes()
-                yield(b'--frame\r\n'
-                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            frame = camera.read()
+            if frame is None:
+                frame = cv2.imread("no_video.jpg")
+                camera.release()
+                # frame = np.zeros((500, 320, 3), dtype = np.uint8)
+                frame = cv2.resize(frame, (500, 320))
+            else:
+                frame = cv2.resize(frame, (500, 320))
+                if int(process) == 1:
+                    frame,number = proceesor(frame)
+                if int(process) == 2:
+                    frame, number = motionDetect(frame)
+                start = current_time
+            ret, buffer = cv2.imencode(".jpg", frame)
+            frame = buffer.tobytes()
+            yield(b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
 def SetCam():
