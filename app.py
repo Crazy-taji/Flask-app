@@ -108,7 +108,6 @@ def generateFrames():
                     frame,number = proceesor(frame)
                 if int(process) == 2:
                     frame, number = motionDetect(frame)
-                start = current_time
             ret, buffer = cv2.imencode(".jpg", frame)
             frame = buffer.tobytes()
             yield(b'--frame\r\n'
