@@ -65,15 +65,17 @@ object_detector = cv2.createBackgroundSubtractorMOG2(history = 100, varThreshold
 #     return frame
 
 def motionDetect(frame):
-    frame = object_detector.apply(frame)
-    contours, _ = cv2.findContours(frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    for cnt in contours:
-        area = cv2.contourArea(cnt)
-        if area > 100:
-            x, y, w, h = cv2.boundingRect(cnt)
-            # cv2.drawContours(frame, [cnt],-1,(0,255,0),2)
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 3)
-    return frame,1
+    rect_count = 0
+    fg_mask = object_detector.apply(frame)
+    
+    contours, hierarchy = cv2.findContours(fg_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    
+    for contour in contours:
+        (x, y, w, h) = cv2.boundingRect(contour)
+        if cv2.contourArea(contour) > 500:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            rect_count += 1
+    return frame,rect_count
 
 def proceesor(frame):
 
